@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/ui/edit_data.dart';
 import 'package:myapp/ui/produk_form.dart';
-import 'data_storage.dart'; // Import file penyimpanan data
+import 'package:myapp/ui/produk_detail.dart';
+import 'data_storage.dart';
 
 class DataPenjualan extends StatefulWidget {
   const DataPenjualan({Key? key}) : super(key: key);
@@ -11,7 +12,6 @@ class DataPenjualan extends StatefulWidget {
 }
 
 class _DataPenjualanState extends State<DataPenjualan> {
-  
   @override
   void initState() {
     super.initState();
@@ -67,33 +67,43 @@ class _DataPenjualanState extends State<DataPenjualan> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('No Faktur')),
-            DataColumn(label: Text('Tanggal')),
-            DataColumn(label: Text('Nama Customer')),
-            DataColumn(label: Text('Nama Barang')),
-            DataColumn(label: Text('Harga Barang')),
-            DataColumn(label: Text('Jumlah Barang')),
-            DataColumn(label: Text('Total Harga')),
-            DataColumn(label: Text('Aksi')),
-          ],
-          rows: DataStorage.dataPenjualan.asMap().map((index, data) {
-            return MapEntry(
-              index,
-              DataRow(
-                cells: [
-                  DataCell(Text(data["noFaktur"])),
-                  DataCell(Text(data["tanggal"])),
-                  DataCell(Text(data["namaCustomer"])),
-                  DataCell(Text(data["namaBarang"])),
-                  DataCell(Text(data["hargaBarang"].toString())),
-                  DataCell(Text(data["jumlahBarang"].toString())),
-                  DataCell(Text(data["totalHarga"].toString())),
-                  DataCell(
+      body: ListView.builder(
+        itemCount: DataStorage.dataPenjualan.length,
+        itemBuilder: (context, index) {
+          final data = DataStorage.dataPenjualan[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProdukDetail(
+                    kodeProduk: data["noFaktur"],
+                    namaProduk: data["namaBarang"],
+                    hargaProduk: int.tryParse(data["hargaBarang"].toString()) ?? 0,
+                    tanggal: data["tanggal"],
+                    namaCustomer: data["namaCustomer"],
+                    jumlahBarang: int.tryParse(data["jumlahBarang"].toString()) ?? 0,
+                    totalHarga: int.tryParse(data["totalHarga"].toString()) ?? 0,
+                  ),
+                ),
+              );
+            },
+            child: Card(
+              margin: const EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("No Faktur: ${data["noFaktur"]}", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("Tanggal: ${data["tanggal"]}"),
+                    Text("Nama Customer: ${data["namaCustomer"]}"),
+                    Text("Nama Barang: ${data["namaBarang"]}"),
+                    Text("Harga Barang: Rp. ${data["hargaBarang"]}"),
+                    Text("Jumlah Barang: ${data["jumlahBarang"]}"),
+                    Text("Total Harga: Rp. ${data["totalHarga"]}"),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit),
@@ -118,12 +128,12 @@ class _DataPenjualanState extends State<DataPenjualan> {
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            );
-          }).values.toList(),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
